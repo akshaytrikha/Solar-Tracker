@@ -11,13 +11,22 @@
 #include <stdint.h>
 #include "SAM4S4B/SAM4S4B.h"
 
-// pin definitions
-#define RED 	15
-#define BLUE 	16
-#define BLACK 	25
-#define GREEN 	26
-#define RB_EN 	27
-#define BG_EN	28
+// pin definitions for theta motor
+#define RED_1 		15
+#define BLUE_1 		16
+#define BLACK_1 	25
+#define GREEN_1 	26
+#define RB_EN_1 	27
+#define BG_EN_1		28
+
+// pin definitions for phi motor
+#define RED_2 		0
+#define BLUE_2 		0
+#define BLACK_2 	0
+#define GREEN_2 	0
+#define RB_EN_2 	0
+#define BG_EN_2		0
+
 
 #define DELAY 500 // ms
 
@@ -30,54 +39,60 @@ uint8_t theta_Pmax;
 uint8_t phi_Pmax;
 
 // to keep track of max observed power values
-uint8_t pmax_theta = 0;
-uint8_t pmax_phi = 0;
+uint8_t pmax = 0;
 
-// pulses motor for DELAY ms
+// to keep track of current power output
+uint8_t currentPower;
+
+// pulses theta motor for DELAY ms
 void testMotor() {
 	// enable motor signals on H-Bridge
-	pioDigitalWrite(RB_EN, 1);
-	pioDigitalWrite(BG_EN, 1);
+	pioDigitalWrite(RB_EN_1, 1);
+	pioDigitalWrite(BG_EN_1, 1);
 
 	// constantly perform loop
 	while(1) {	
 		
 		// step 1
-		pioDigitalWrite(BLACK, 1);
-		pioDigitalWrite(RED, 1);
-		pioDigitalWrite(GREEN, 0);
-		pioDigitalWrite(BLUE, 0);
+		pioDigitalWrite(BLACK_1, 1);
+		pioDigitalWrite(RED_1, 1);
+		pioDigitalWrite(GREEN_1, 0);
+		pioDigitalWrite(BLUE_1, 0);
 		tcDelayMillis(DELAY);
-		pioDigitalWrite(BLACK, 0);
-		pioDigitalWrite(RED, 0);
+		pioDigitalWrite(BLACK_1, 0);
+		pioDigitalWrite(RED_1, 0);
 		
 		// step 2
-		pioDigitalWrite(BLACK, 0);
-		pioDigitalWrite(RED, 1);
-		pioDigitalWrite(GREEN, 1);
-		pioDigitalWrite(BLUE, 0);
+		pioDigitalWrite(BLACK_1, 0);
+		pioDigitalWrite(RED_1, 1);
+		pioDigitalWrite(GREEN_1, 1);
+		pioDigitalWrite(BLUE_1, 0);
 		tcDelayMillis(DELAY);
-		pioDigitalWrite(RED, 0);
-		pioDigitalWrite(GREEN, 0);
+		pioDigitalWrite(RED_1, 0);
+		pioDigitalWrite(GREEN_1, 0);
 		
 		// step 3
-		pioDigitalWrite(BLACK, 0);
-		pioDigitalWrite(RED, 0);
-		pioDigitalWrite(GREEN, 1);
-		pioDigitalWrite(BLUE, 1);
+		pioDigitalWrite(BLACK_1, 0);
+		pioDigitalWrite(RED_1, 0);
+		pioDigitalWrite(GREEN_1, 1);
+		pioDigitalWrite(BLUE_1, 1);
 		tcDelayMillis(DELAY);
-		pioDigitalWrite(GREEN, 0);
-		pioDigitalWrite(BLUE, 0);
+		pioDigitalWrite(GREEN_1, 0);
+		pioDigitalWrite(BLUE_1, 0);
 		
 		// step 4
-		pioDigitalWrite(BLACK, 1);
-		pioDigitalWrite(RED, 0);
-		pioDigitalWrite(GREEN, 0);
-		pioDigitalWrite(BLUE, 1);
+		pioDigitalWrite(BLACK_1, 1);
+		pioDigitalWrite(RED_1, 0);
+		pioDigitalWrite(GREEN_1, 0);
+		pioDigitalWrite(BLUE_1, 1);
 		tcDelayMillis(DELAY);
-		pioDigitalWrite(BLACK, 0);
-		pioDigitalWrite(BLUE, 0);
+		pioDigitalWrite(BLACK_1, 0);
+		pioDigitalWrite(BLUE_1, 0);
 	}
+
+	// disable motor signals on H-Bridge
+	pioDigitalWrite(RB_EN_1, 1);
+	pioDigitalWrite(BG_EN_1, 1);
 }
 
 
@@ -89,30 +104,89 @@ void init() {
 	tcDelayInit();
 
 	// set pins as outputs
-	pioPinMode(RED, PIO_OUTPUT);
-  	pioPinMode(BLUE, PIO_OUTPUT);
-	pioPinMode(BLACK, PIO_OUTPUT);
-  	pioPinMode(GREEN, PIO_OUTPUT);
-	pioPinMode(RB_EN, PIO_OUTPUT);
-  	pioPinMode(BG_EN, PIO_OUTPUT);
+	pioPinMode(RED_1, PIO_OUTPUT);
+  	pioPinMode(BLUE_1, PIO_OUTPUT);
+	pioPinMode(BLACK_1, PIO_OUTPUT);
+  	pioPinMode(GREEN_1, PIO_OUTPUT);
+	pioPinMode(RB_EN_1, PIO_OUTPUT);
+  	pioPinMode(BG_EN_1, PIO_OUTPUT);
+}
+
+// returns curent power reading from sensor
+uint8_t getPower() {
+	// TODO: implement
+	return 0;
+}
+
+// moves theta motor to desiRED_1 angle
+void moveTheta(uint8_t stepAngle) {
+	// TODO: implement
+}
+
+// moves phi motor to desiRED_1 angle
+void movePhi(uint8_t stepAngle) {
+	// TODO: implement
 }
 
 // setup solar panel to optimal initial angle
 void setup() {
-	// enable motor signals on H-Bridge
-	pioDigitalWrite(RB_EN, 1);
-	pioDigitalWrite(BG_EN, 1);
+	// enable theta motor signals on H-Bridge
+	pioDigitalWrite(RB_EN_1, 1);
+	pioDigitalWrite(BG_EN_1, 1);
 
-	// disable motor signals on H-Bridge
-	pioDigitalWrite(RB_EN, 0);
-	pioDigitalWrite(BG_EN, 0);
+	// initially set best theta as current theta (30 degrees)
+	theta_Pmax = theta;
+	pmax = getPower();
+
+	// loop through 120 degrees find best theta
+	while (theta <= 150) {
+		currentPower = getPower();
+		if  (currentPower > pmax) {
+			pmax = currentPower;
+			theta_Pmax = theta;
+		}
+		theta += 12;
+	}
+
+	// move to theta that yields pmax
+	moveTheta(theta_Pmax);
+
+	// disable theta motor signals on H-Bridge
+	pioDigitalWrite(RB_EN_1, 0);
+	pioDigitalWrite(BG_EN_1, 0);
+
+	// reset pmax variable
+	pmax = 0;
+
+	// enable phi motor signals on H-Bridge
+	pioDigitalWrite(RB_EN_2, 1);
+	pioDigitalWrite(BG_EN_2, 1);
+
+	// loop through 360 degrees find best phi
+	while (phi <= 360) {
+		currentPower = getPower();
+		if  (currentPower > pmax) {
+			pmax = currentPower;
+			phi_Pmax = phi;
+		}
+		phi += 36;
+	}
+
+	// move to theta that yields pmax
+	moveTheta(phi_Pmax);
+
+	// disable phi motor signals on H-Bridge
+	pioDigitalWrite(RB_EN_2, 0);
+	pioDigitalWrite(BG_EN_2, 0);
 }
 
 int main(void) {
-
+	// initialize SAM4S4B microcontroller
 	init();
-	
-	testMotor();
+
+	// move panel to inital optimal angle
+	setup();
+
 	tcDelayMillis(DELAY);
 	
 	return 0;
