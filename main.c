@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "SAM4S4B/SAM4S4B.h"
+#include "SAM4S4B/SAM4S4B_supc.h"
 
 // pin definitions for theta motor
 #define RED_1 		15
@@ -103,13 +104,21 @@ void init() {
   	pioInit();
 	tcDelayInit();
 
-	// set pins as outputs
+	// set theta motor pins as outputs
 	pioPinMode(RED_1, PIO_OUTPUT);
   	pioPinMode(BLUE_1, PIO_OUTPUT);
 	pioPinMode(BLACK_1, PIO_OUTPUT);
   	pioPinMode(GREEN_1, PIO_OUTPUT);
 	pioPinMode(RB_EN_1, PIO_OUTPUT);
   	pioPinMode(BG_EN_1, PIO_OUTPUT);
+
+  	// set phi motor pins as outputs
+	pioPinMode(RED_2, PIO_OUTPUT);
+  	pioPinMode(BLUE_2, PIO_OUTPUT);
+	pioPinMode(BLACK_2, PIO_OUTPUT);
+  	pioPinMode(GREEN_2, PIO_OUTPUT);
+	pioPinMode(RB_EN_2, PIO_OUTPUT);
+  	pioPinMode(BG_EN_2, PIO_OUTPUT);
 }
 
 // returns curent power reading from sensor
@@ -180,6 +189,17 @@ void setup() {
 	pioDigitalWrite(BG_EN_2, 0);
 }
 
+// move to optimal location every 20 mins
+void update() {
+
+
+	// delay for 20 mins
+	tcDelayMillis(DELAY);
+
+	// put SAM4S4B in backup mode
+
+}
+
 int main(void) {
 	// initialize SAM4S4B microcontroller
 	init();
@@ -187,7 +207,6 @@ int main(void) {
 	// move panel to inital optimal angle
 	setup();
 
-	tcDelayMillis(DELAY);
-	
+		
 	return 0;
 }
