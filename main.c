@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "SAM4S4B/SAM4S4B.h"
 #include "SAM4S4B/SAM4S4B_supc.h"
+#include "SAM4S4B/SAM4S4B_twi.h"
 
 // pin definitions for theta motor
 #define RED_1 		15
