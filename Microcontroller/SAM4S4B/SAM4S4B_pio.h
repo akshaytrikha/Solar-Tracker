@@ -3,7 +3,7 @@
  * cferrarin@g.hmc.edu
  * kpezeshki@g.hmc.edu
  * 2/25/2018
- * 
+ *
  * Contains base address locations, register structs, definitions, and functions for the PIO
  * (Parallel Input/Output Controller) peripheral of the SAM4S4B microcontroller. */
 

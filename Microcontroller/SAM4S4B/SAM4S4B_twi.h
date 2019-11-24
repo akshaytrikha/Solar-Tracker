@@ -2,7 +2,7 @@
  *
  * khoe@g.hmc.edu
  * 11/20/2019
- * 
+ *
  * Contains base address locations, register structs, definitions, and functions for the TWI (Two-Wire Interface) peripheral of the SAM4S4B microcontroller. */
 
 #ifndef SAM4S4B_TWI_H
@@ -199,6 +199,31 @@ typedef struct {
 // TWI User Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+// initializes TWI to master mode
+void twiInit(uint8_t pmc_ID) {
+    if (pmc_ID == 0) {
+        pmcEnablePeriph(PMC_ID_TWI0);
+    } else if (pmc_ID == 1) {
+        pmcEnablePeriph(PMC_ID_TWI1);
+    }
+
+    pioInit();
+
+    // Initially assigning SPI pins (PA11-PA14) to peripheral A (SPI)
+   pioPinMode(PIO_PB4, PIO_PERIPH_A);
+   pioPinMode(PIO_PB5, PIO_PERIPH_A);
+   pioPinMode(PIO_PB13, PIO_PERIPH_A);
+   pioPinMode(PIO_PA14, PIO_PERIPH_A);
+
+   // TWI->TWI_CR.SPIEN = 1; // Enable SPI
+   // SPI->SPI_MR.MSTR = 1; // Put SPI in master mode
+   // SPI->SPI_CSR0.SCBR = clkdivide; // Set the clock divisor
+   // SPI->SPI_CSR0.CPOL = cpol; // Set the polarity
+   // SPI->SPI_CSR0.NCPHA = ncpha; // Set the phase
+
+}
+
 //void spiInit(uint32_t clkdivide, uint32_t cpol, uint32_t ncpha) {
 //    pmcEnablePeriph(PMC_ID_TWI);
 //    pioInit();
@@ -215,20 +240,63 @@ typedef struct {
 //    SPI->SPI_CSR0.CPOL = cpol; // Set the polarity
 //    SPI->SPI_CSR0.NCPHA = ncpha; // Set the phase
 //}
+
+// recieves data from a slave
+// slave address size: 1 byte
+// slave recieved data size: 2 bytes
+void twiMasterRecieve(uint8_t pmc_ID, char slaveRegisterAddress) {
+    // array to store two bytes recieved
+    char* dataRecieved[2];
+
+    // enable master mode
+    TWI1->TWI_CR.MSEN = 1;
+    TWI1->TWI_CR.MSDIS = 0;
+
+    // disable slave mode
+    TWI1->TWI_CR.SVDIS = 1;
+
+    // set master to read from slave
+    TWI1->TWI_MMR.MREAD = 1;
+
+    // set slave address size
+    TWI1->TWI_MMR.IADRSZ = 0b01;
+
+    // set slave device address
+    //
+    TWI1->TWI_MMR.DADR = 0b1000000;
+    TWI1->TWI_IADR.IADR = slaveRegisterAddress;
+
+    // start the communication
+    TWI1->TWI_CR.START = 1;
+
+    // wait for byte to be recieved
+    while(!(TWI->TWI_SR.RXRDY));
+    // store captured byte
+    dataRecieved[0] = TWI1->TWI_RHR.RXDATA;
+
+    // wait for byte to be recieved
+    while(!(TWI->TWI_SR.RXRDY));
+    // store captured byte
+    dataRecieved[1] = TWI1->TWI_RHR.RXDATA;
+
+    // stop the communication
+    TWI1->TWI_CR.STOP = 1;
+}
+
 //
 ///* Transmits a character (1 byte) over SPI and returns the received character.
 // *    -- send: the character to send over SPI
 // *    -- return: the character received over SPI */
-//char spiSendReceive(char send) {
+// char spiSendReceive(char send) {
 //    SPI->SPI_TDR.TD = send; // Transmit the character over SPI
 //    while (!(SPI->SPI_SR.RDRF)); // Wait until data has been received
 //    return (char) (SPI->SPI_RDR.RD); // Return received character
-//}
+// }
 //
 ///* Transmits a short (2 bytes) over SPI and returns the received short.
 // *    -- send: the short to send over SPI
 // *    -- return: the short received over SPI */
-//short spiSendReceive16(uint16_t send) {
+// short spiSendReceive16(uint16_t send) {
 //    short rec; // Variable for received data, filled one byte at a time
 //    rec = spiSendReceive((send & 0xFF00) >> 8); // Send the MSB of the data first
 //    rec = (rec << 8) | spiSendReceive(send & 0xFF); // Send the LSB of the data
