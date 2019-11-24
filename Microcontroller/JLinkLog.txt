@@ -1,13 +1,13 @@
-T5808 31608:164 SEGGER J-Link V6.50b Log File (0001ms, 10665ms total)
-T5808 31608:164 DLL Compiled: Sep  6 2019 17:57:35 (0001ms, 10665ms total)
-T5808 31608:164 Logging started @ 2019-11-24 08:01 (0001ms, 10665ms total)
-T5808 31608:165 JLINK_SetWarnOutHandler(...) (0000ms, 10665ms total)
-T5808 31608:165 JLINK_OpenEx(...)
+T5808 16077:540 SEGGER J-Link V6.50b Log File (0001ms, 5063ms total)
+T5808 16077:540 DLL Compiled: Sep  6 2019 17:57:35 (0001ms, 5063ms total)
+T5808 16077:540 Logging started @ 2019-11-24 03:42 (0001ms, 5063ms total)
+T5808 16077:541 JLINK_SetWarnOutHandler(...) (0000ms, 5063ms total)
+T5808 16077:541 JLINK_OpenEx(...)
 Firmware: J-Link EDU Mini V1 compiled Aug 27 2019 09:26:01
 Hardware: V1.00
 S/N: 801012706
 Feature(s): FlashBP, GDB
-TELNET listener socket opened on port 19021WEBSRV 
+TELNET listener socket opened on port 19021WEBSRV
 Starting webserver (0034ms, 10699ms total)
 T5808 31608:165 WEBSRV Webserver running on local port 19080 (0034ms, 10699ms total)
 T5808 31608:165   returns O.K. (0034ms, 10699ms total)
