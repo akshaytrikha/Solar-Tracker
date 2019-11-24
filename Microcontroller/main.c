@@ -12,12 +12,12 @@
 #include "SAM4S4B/SAM4S4B.h"
 
 // pin definitions for theta motor
-#define RED_1 		3
-#define BLUE_1 		27
-#define BLACK_1 	26
-#define GREEN_1 	28
-#define RB_EN_1 	4
-#define BG_EN_1		25
+#define RED_1 		PIO_PA3
+#define BLUE_1 		PIO_PA27
+#define BLACK_1 	PIO_PA26
+#define GREEN_1 	PIO_PA16
+#define RB_EN_1 	PIO_PA4
+#define BG_EN_1		PIO_PA25
 
 // pin definitions for phi motor
 #define RED_2 		0
@@ -187,7 +187,7 @@ void stepNegative(uint32_t frequency, uint32_t duration) {
 		pioDigitalWrite(BLUE_1, 0);
 		
 		// step 2
-		pioDigitalWrite(BLACK_1, 0);
+		pioDigitalWrite(BLACK_1, 0); 
 		pioDigitalWrite(RED_1, 1);
 		pioDigitalWrite(GREEN_1, 1);
 		pioDigitalWrite(BLUE_1, 0);
