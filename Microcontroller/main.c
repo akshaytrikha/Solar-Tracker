@@ -12,31 +12,14 @@
 #include "SAM4S4B/SAM4S4B.h"
 
 // pin definitions for theta/phi motors
-#define RED 				PIO_PA3
+#define RED 				PIO_PA15
 #define BLUE 				PIO_PA27
 #define BLACK 			PIO_PA26
-#define GREEN 			PIO_PA16
-#define THETA_EN	 	PIO_PA4
+#define GREEN 			PIO_PA28
+#define THETA_EN	 	PIO_PA16
 #define PHI_EN			PIO_PA25
 
 #define DELAY 300 // ms
-
-// initialize SAM4S4B
-void init() {
-	// initialize microcontroller's PIO capabilities
-	samInit();
-  pioInit();
-	tcDelayInit();
-
-	// set motor pins as outputs
-	pioPinMode(RED, PIO_OUTPUT);
-  pioPinMode(BLUE, PIO_OUTPUT);
-	pioPinMode(BLACK, PIO_OUTPUT);
-  pioPinMode(GREEN, PIO_OUTPUT);
-	pioPinMode(THETA_EN, PIO_OUTPUT);
-	pioPinMode(PHI_EN, PIO_OUTPUT);
-
-}
 
 // pulses theta motor for DELAY ms
 void testMotor() {
@@ -193,12 +176,37 @@ void stepNegative(uint32_t frequency, uint32_t duration, int motor_en) {
 	pioDigitalWrite(motor_en, 0);
 }
 
+// initialize SAM4S4B
+void init() {
+	// initialize microcontroller's PIO capabilities
+	samInit();
+  pioInit();
+	tcDelayInit();
+	twiInit(0);
+
+	// set motor pins as outputs
+	pioPinMode(RED, PIO_OUTPUT);
+  pioPinMode(BLUE, PIO_OUTPUT);
+	pioPinMode(BLACK, PIO_OUTPUT);
+  pioPinMode(GREEN, PIO_OUTPUT);
+	pioPinMode(THETA_EN, PIO_OUTPUT);
+	pioPinMode(PHI_EN, PIO_OUTPUT);
+}
+
 int main(void) {
 	// initialize SAM4S4B microcontroller
 	init();
+	
+	// to store data recieved from power sensor
+	char* powerData[2];
 
 	// step positive at 100Hz for 2000 milliseconds
 	stepPositive(75, 2000, PHI_EN);
+	while(1) {
+		// continusouly read power data from INA260's Power Register (0x03)
+		twiMasterRecieve(0x03);
+		//readi2c();
+	}
 	stepNegative(40, 4000, THETA_EN);
 
 	return 0;
